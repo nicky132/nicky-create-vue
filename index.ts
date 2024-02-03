@@ -102,6 +102,7 @@ async function init() {
       argv.jsx ??
       argv.router ??
       argv.pinia ??
+      argv.elementplus ??
       argv.tests ??
       argv.vitest ??
       argv.cypress ??
@@ -123,6 +124,7 @@ async function init() {
     packageName?: string
     needsTypeScript?: boolean
     needsJsx?: boolean
+    needsElementPlus?: boolean
     needsRouter?: boolean
     needsPinia?: boolean
     needsVitest?: boolean
@@ -218,6 +220,14 @@ async function init() {
           inactive: language.defaultToggleOptions.inactive
         },
         {
+          name: 'needsElementPlus',
+          type: () => (isFeatureFlagsUsed ? null : 'toggle'),
+          message: language.needsElementPlus.message,
+          initial: false,
+          active: language.defaultToggleOptions.active,
+          inactive: language.defaultToggleOptions.inactive
+        },
+        {
           name: 'needsVitest',
           type: () => (isFeatureFlagsUsed ? null : 'toggle'),
           message: language.needsVitest.message,
@@ -299,6 +309,7 @@ async function init() {
     needsTypeScript = argv.typescript,
     needsRouter = argv.router,
     needsPinia = argv.pinia,
+    needsElementPlus = argv.elementplus,
     needsVitest = argv.vitest || argv.tests,
     needsEslint = argv.eslint || argv['eslint-with-prettier'],
     needsPrettier = argv['eslint-with-prettier']
@@ -346,6 +357,9 @@ async function init() {
   }
   if (needsPinia) {
     render('config/pinia')
+  }
+  if (needsElementPlus) {
+    render('config/element-plus')
   }
   if (needsVitest) {
     render('config/vitest')
