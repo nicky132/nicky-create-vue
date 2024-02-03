@@ -1,6 +1,6 @@
 {
   "name": "@nicky132/create-vue",
-  "version": "3.9.4",
+  "version": "3.9.5",
   "description": "An easy way to start a Vue project",
   "type": "module",
   "bin": {

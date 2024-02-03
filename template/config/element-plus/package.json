@@ -1,5 +1,5 @@
 {
   "dependencies": {
-    "pinia": "^2.5.5"
+    "element-plus": "^2.5.5"
   }
 }

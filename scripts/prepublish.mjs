@@ -1,15 +1,15 @@
 #!/usr/bin/env zx
-import 'zx/globals'
+// import 'zx/globals'
 
-await $`pnpm build`
-await $`pnpm snapshot`
+// await $`pnpm build`
+// await $`pnpm snapshot`
 
-let { version } = JSON.parse(await fs.readFile('./package.json'))
+// let { version } = JSON.parse(await fs.readFile('./package.json'))
 
-const playgroundDir = path.resolve(__dirname, '../playground/')
-cd(playgroundDir)
+// const playgroundDir = path.resolve(__dirname, '../playground/')
+// cd(playgroundDir)
 
-await $`pnpm install`
+// await $`pnpm install`
 // await $`git add -A .`
 // try {
 //   await $`git commit -m "version ${version} snapshot"`
