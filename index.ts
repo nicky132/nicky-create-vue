@@ -108,8 +108,13 @@ async function init() {
       argv.cypress ??
       argv.nightwatch ??
       argv.playwright ??
-      argv.eslint
+      argv.eslint ??
+      argv.element ??
+      argv.microapp ??
+      argv.standardConfig
     ) === 'boolean'
+
+  let isStandardConfig = argv.standardConfig
 
   let targetDir = argv._[0]
   const defaultProjectName = !targetDir ? 'vue-project' : targetDir
@@ -123,6 +128,7 @@ async function init() {
     shouldOverwrite?: boolean
     packageName?: string
     needsTypeScript?: boolean
+    needsMicroApp?: boolean
     needsJsx?: boolean
     needsElementPlus?: boolean
     needsRouter?: boolean
@@ -188,8 +194,16 @@ async function init() {
           validate: (dir) => isValidPackageName(dir) || language.packageName.invalidMessage
         },
         {
+          name: 'needsMicroApp',
+          type: () => (isFeatureFlagsUsed || isStandardConfig ? null : 'toggle'),
+          message: '添加MicroApps?',
+          initial: false,
+          active: 'Yes',
+          inactive: 'No'
+        },
+        {
           name: 'needsTypeScript',
-          type: () => (isFeatureFlagsUsed ? null : 'toggle'),
+          type: (prev, values) => (isFeatureFlagsUsed || values.needsMicroApp ? null : 'toggle'),
           message: language.needsTypeScript.message,
           initial: false,
           active: language.defaultToggleOptions.active,
@@ -197,7 +211,7 @@ async function init() {
         },
         {
           name: 'needsJsx',
-          type: () => (isFeatureFlagsUsed ? null : 'toggle'),
+          type: (prev, values) => (isFeatureFlagsUsed || values.needsMicroApp ? null : 'toggle'),
           message: language.needsJsx.message,
           initial: false,
           active: language.defaultToggleOptions.active,
@@ -205,7 +219,7 @@ async function init() {
         },
         {
           name: 'needsRouter',
-          type: () => (isFeatureFlagsUsed ? null : 'toggle'),
+          type: (prev, values) => (isFeatureFlagsUsed || values.needsMicroApp ? null : 'toggle'),
           message: language.needsRouter.message,
           initial: false,
           active: language.defaultToggleOptions.active,
@@ -213,7 +227,7 @@ async function init() {
         },
         {
           name: 'needsPinia',
-          type: () => (isFeatureFlagsUsed ? null : 'toggle'),
+          type: (prev, values) => (isFeatureFlagsUsed || values.needsMicroApp ? null : 'toggle'),
           message: language.needsPinia.message,
           initial: false,
           active: language.defaultToggleOptions.active,
@@ -221,7 +235,7 @@ async function init() {
         },
         {
           name: 'needsElementPlus',
-          type: () => (isFeatureFlagsUsed ? null : 'toggle'),
+          type: (prev, values) => (isFeatureFlagsUsed || values.needsMicroApp ? null : 'toggle'),
           message: language.needsElementPlus.message,
           initial: false,
           active: language.defaultToggleOptions.active,
@@ -229,7 +243,7 @@ async function init() {
         },
         {
           name: 'needsVitest',
-          type: () => (isFeatureFlagsUsed ? null : 'toggle'),
+          type: (prev, values) => (isFeatureFlagsUsed || values.needsMicroApp ? null : 'toggle'),
           message: language.needsVitest.message,
           initial: false,
           active: language.defaultToggleOptions.active,
@@ -237,7 +251,7 @@ async function init() {
         },
         {
           name: 'needsE2eTesting',
-          type: () => (isFeatureFlagsUsed ? null : 'select'),
+          type: (prev, values) => (isFeatureFlagsUsed || values.needsMicroApp ? null : 'select'),
           hint: language.needsE2eTesting.hint,
           message: language.needsE2eTesting.message,
           initial: 0,
@@ -268,7 +282,7 @@ async function init() {
         },
         {
           name: 'needsEslint',
-          type: () => (isFeatureFlagsUsed ? null : 'toggle'),
+          type: (prev, values) => (isFeatureFlagsUsed || values.needsMicroApp ? null : 'toggle'),
           message: language.needsEslint.message,
           initial: false,
           active: language.defaultToggleOptions.active,
@@ -277,7 +291,7 @@ async function init() {
         {
           name: 'needsPrettier',
           type: (prev, values) => {
-            if (isFeatureFlagsUsed || !values.needsEslint) {
+            if (isFeatureFlagsUsed || !values.needsEslint || values.needsMicroApp) {
               return null
             }
             return 'toggle'
@@ -309,6 +323,7 @@ async function init() {
     needsTypeScript = argv.typescript,
     needsRouter = argv.router,
     needsPinia = argv.pinia,
+    needsMicroApp = argv.microapp,
     needsElementPlus = argv.elementplus,
     needsVitest = argv.vitest || argv.tests,
     needsEslint = argv.eslint || argv['eslint-with-prettier'],
@@ -361,6 +376,11 @@ async function init() {
   if (needsElementPlus) {
     render('config/element-plus')
   }
+  // microApp
+  if (needsMicroApp) {
+    render('config/micro-app')
+  }
+
   if (needsVitest) {
     render('config/vitest')
   }
@@ -449,12 +469,16 @@ async function init() {
     renderEslint(root, { needsTypeScript, needsCypress, needsCypressCT, needsPrettier })
   }
 
-  // Render code template.
-  // prettier-ignore
-  const codeTemplate =
+  if (needsMicroApp) {
+    render(`code/microapp`)
+  } else {
+    // Render code template.
+    // prettier-ignore
+    const codeTemplate =
     (needsTypeScript ? 'typescript-' : '') +
     (needsRouter ? 'router' : 'default')
-  render(`code/${codeTemplate}`)
+    render(`code/${codeTemplate}`)
+  }
 
   // Render entry file (main.js/ts).
   if (needsPinia && needsRouter) {
